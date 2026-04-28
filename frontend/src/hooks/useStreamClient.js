@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { StreamChat } from "stream-chat";
+import { useAuth } from "@clerk/clerk-react"; // 1. useAuth import karein
 import toast from "react-hot-toast";
 import { initializeStreamClient, disconnectStreamClient } from "../lib/stream";
 import { sessionApi } from "../api/sessions";
 
 function useStreamClient(session, loadingSession, isHost, isParticipant) {
+  const { getToken } = useAuth(); // 2. getToken nikaalein
   const [streamClient, setStreamClient] = useState(null);
   const [call, setCall] = useState(null);
   const [chatClient, setChatClient] = useState(null);
@@ -21,7 +23,14 @@ function useStreamClient(session, loadingSession, isHost, isParticipant) {
       if (session.status === "completed") return;
 
       try {
-        const { token, userId, userName, userImage } = await sessionApi.getStreamToken();
+        // 3. Clerk se fresh token lein
+        const clerkToken = await getToken();
+
+        // 4. API ko token bhejien (Yeh pehle missing tha)
+        const response = await sessionApi.getStreamToken(clerkToken);
+
+        // Backend se token, userId wagera nikaalein
+        const { token, userId, userName, userImage } = response;
 
         const client = await initializeStreamClient(
           {
@@ -64,9 +73,7 @@ function useStreamClient(session, loadingSession, isHost, isParticipant) {
 
     if (session && !loadingSession) initCall();
 
-    // cleanup - performance reasons
     return () => {
-      // iife
       (async () => {
         try {
           if (videoCall) await videoCall.leave();
@@ -77,7 +84,7 @@ function useStreamClient(session, loadingSession, isHost, isParticipant) {
         }
       })();
     };
-  }, [session, loadingSession, isHost, isParticipant]);
+  }, [session, loadingSession, isHost, isParticipant, getToken]); // getToken ko dependency mein daalein
 
   return {
     streamClient,
