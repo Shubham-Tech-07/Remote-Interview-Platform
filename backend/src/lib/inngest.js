@@ -3,7 +3,7 @@ import { connectDB } from "./db.js";
 import User from "../models/User.js";
 import { deleteStreamUser, upsertStreamUser } from "./stream.js";
 
-export const inngest = new Inngest({ id: "talent-iq" });
+export const inngest = new Inngest({ id: "nex-hire" });
 
 // ✅ FIX: Triggers ko config (1st arg) ke andar daal diya hai.
 // ✅ Ab sirf 2 arguments hain: (Object, Function)
