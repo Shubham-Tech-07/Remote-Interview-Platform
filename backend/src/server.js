@@ -19,7 +19,14 @@ const __dirname = path.resolve();
 app.use(express.json());
 // credentials:true meaning?? => server allows a browser to include cookies on request
 app.use(cors({
-  origin: [ENV.CLIENT_URL, "https://remote-interview-platform-cs5y7dia6.vercel.app"],
+  origin: function (origin, callback) {
+    // Agar request bina origin ke hai (jaise mobile app) ya Vercel se hai, toh allow karein
+    if (!origin || origin.includes(".vercel.app") || origin.includes("localhost")) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(clerkMiddleware()); // this adds auth field to request object: req.auth()
