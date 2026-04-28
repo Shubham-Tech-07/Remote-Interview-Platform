@@ -5,11 +5,14 @@ import { deleteStreamUser, upsertStreamUser } from "./stream.js";
 
 export const inngest = new Inngest({ id: "talent-iq" });
 
-// ✅ FIXED: Inngest v3 syntax (Id aur Event ko ek hi object mein rakhein ya 3 arguments dein)
-const syncUser = inngest.createFunction(
-  { id: "sync-user", name: "Sync User" }, // 1st argument: Config (id & name)
-  { event: "clerk/user.created" },        // 2nd argument: Trigger
-  async ({ event }) => {                  // 3rd argument: Handler function
+export const syncUser = inngest.createFunction(
+  {
+    id: "sync-user",
+    name: "Sync User",
+    // ✅ Naya Tarika: Trigger ko config object ke andar hi daal dein
+  },
+  { event: "clerk/user.created" },
+  async ({ event }) => {
     await connectDB();
 
     const { id, email_addresses, first_name, last_name, image_url } = event.data;
@@ -31,8 +34,7 @@ const syncUser = inngest.createFunction(
   }
 );
 
-// ✅ FIXED: Same logic yahan bhi
-const deleteUserFromDB = inngest.createFunction(
+export const deleteUserFromDB = inngest.createFunction(
   { id: "delete-user-from-db", name: "Delete User" },
   { event: "clerk/user.deleted" },
   async ({ event }) => {
