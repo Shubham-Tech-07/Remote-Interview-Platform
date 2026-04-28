@@ -5,14 +5,14 @@ import { deleteStreamUser, upsertStreamUser } from "./stream.js";
 
 export const inngest = new Inngest({ id: "talent-iq" });
 
+// ✅ FIX: Triggers ko 1st argument ke andar rakha hai aur handler ko 2nd argument.
 export const syncUser = inngest.createFunction(
   {
     id: "sync-user",
     name: "Sync User",
-    // ✅ Naya Tarika: Trigger ko config object ke andar hi daal dein
+    triggers: [{ event: "clerk/user.created" }] // Trigger ab yahan hai
   },
-  { event: "clerk/user.created" },
-  async ({ event }) => {
+  async ({ event }) => { // Handler ab seedha 2nd argument hai
     await connectDB();
 
     const { id, email_addresses, first_name, last_name, image_url } = event.data;
@@ -34,9 +34,13 @@ export const syncUser = inngest.createFunction(
   }
 );
 
+// ✅ FIX: Same yahan bhi structure update kiya hai
 export const deleteUserFromDB = inngest.createFunction(
-  { id: "delete-user-from-db", name: "Delete User" },
-  { event: "clerk/user.deleted" },
+  {
+    id: "delete-user-from-db",
+    name: "Delete User",
+    triggers: [{ event: "clerk/user.deleted" }]
+  },
   async ({ event }) => {
     await connectDB();
 
