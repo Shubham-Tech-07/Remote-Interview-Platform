@@ -1,9 +1,9 @@
 import express from "express";
 import { getStreamToken } from "../controllers/chatController.js";
-import { protectRoute } from "../middleware/protectRoute.js";
 
 const router = express.Router();
 
-router.get("/token", protectRoute, getStreamToken);
+// Simple endpoint, Clerk middleware auth details provide karega
+router.get("/token", getStreamToken);
 
 export default router;
