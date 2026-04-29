@@ -7,9 +7,13 @@ import {
   getMyRecentSessions,
   getSessionById,
   joinSession,
+  getStreamToken, // 1. Ye import check karein
 } from "../controllers/sessionController.js";
 
 const router = express.Router();
+
+// 2. Ye naya route add karein (Sabse upar rakhna behtar hai)
+router.get("/stream-token", protectRoute, getStreamToken);
 
 router.post("/", protectRoute, createSession);
 router.get("/active", protectRoute, getActiveSessions);

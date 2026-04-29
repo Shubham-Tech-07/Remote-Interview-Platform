@@ -162,3 +162,28 @@ export async function endSession(req, res) {
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
+// Is function ko sessionController.js ke niche add karein
+export async function getStreamToken(req, res) {
+  try {
+    // req.user humare protectRoute middleware se aa raha hai
+    const user = req.user;
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // GetStream token generate karein
+    const token = streamClient.createToken(user.clerkId);
+
+    // Frontend ko ye data bhejna zaroori hai taaki "Anonymous" na dikhe
+    res.json({
+      token,
+      userId: user.clerkId,
+      userName: user.name,         // MongoDB wala asli naam
+      userImage: user.profileImage, // MongoDB wali photo
+    });
+  } catch (error) {
+    console.log("Error in getStreamToken:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
